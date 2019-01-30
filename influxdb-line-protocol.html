@@ -1,14 +1,17 @@
 <script type="text/javascript">
     RED.nodes.registerType('influxdb-line-protocol',{
         category: 'function',
-        color: '#a6bbcf',
+        color: '#DEBD5C',
         defaults: {
             name: {value:""},
             addTimestamp: {value: false}
         },
         inputs: 1,
         outputs: 1,
-        // icon: "file.png",
+        icon: "influxdb.png",
+        paletteLabel: "InfluxDB / JSON",
+        inputLabels: "string or JSON",
+        outputLabels: ["string or JSON"],
         label: function() {
             return this.name || "influxdb-line-protocol";
         }
@@ -22,8 +25,9 @@
     </div>
 
     <div class="form-row">
-        <input type="checkbox" id="node-input-addTimestamp" />
-        <label for="node-input-addTimestamp">Add timestamp if missing</label>
+        <label for="node-input-addTimestamp"><i class="icon-time"></i> Timestamp</label>
+        <input type="checkbox" id="node-input-addTimestamp" style="display: inline-block; width: 15px; vertical-align: -2px;" />
+        &nbsp;Add timestamp if missing
     </div>
 </script>
 
