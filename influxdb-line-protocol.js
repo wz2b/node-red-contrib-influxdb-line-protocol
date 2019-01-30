@@ -46,20 +46,13 @@ function joinObject(obj, withFormatting) {
     .join(',')
 }
 
-function splitColon(str) {
-  return (str || '')
-    .replace(/\\/m, '#c#')
-    .split(',')
-    .map(s => s.replace(/#c#/gm, ','))
-}
-
 function parse(point, config) {
   const result = {}
 
   const [tags_, fields_, timestamp] = point.split(' ')
 
-  const tags = splitColon(tags_)
-  const fields = splitColon(fields_)
+  const tags = (tags_ || '').split(',')
+  const fields = (fields_ || '').split(',')
 
   result.measurement = tags.shift()
 
