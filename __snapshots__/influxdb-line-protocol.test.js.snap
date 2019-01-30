@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`influxdb-line-protocol should format an empty measurement as string 1`] = `"measurementName "`;
+
+exports[`influxdb-line-protocol should format complicated fields as string 1`] = `"measurementName,tag1=foo,tag2=bar intValue=123i,floatValue=123.45,strValue=\\"123\\",boolValue=FALSE 1231313123000000"`;
+
+exports[`influxdb-line-protocol should parse an empty measurement to JSON 1`] = `
+Object {
+  "fields": Object {},
+  "measurement": "measurementName",
+  "tags": Object {},
+}
+`;
+
+exports[`influxdb-line-protocol should parse complicated fields to JSON 1`] = `
+Object {
+  "fields": Object {
+    "field1": 123,
+    "field2": 123,
+    "field3": "foo",
+    "field4": true,
+  },
+  "measurement": "measurementName",
+  "tags": Object {
+    "tag": "tagValue",
+    "tag2": "tag2Value",
+  },
+  "timestamp": 123.123123,
+}
+`;
+
+exports[`influxdb-line-protocol should parse mixed arrays 1`] = `
+Array [
+  Object {
+    "fields": Object {
+      "field1": 123,
+      "field2": 123,
+      "field3": "foo",
+      "field4": true,
+    },
+    "measurement": "measurementName",
+    "tags": Object {
+      "tag": "tagValue",
+      "tag2": "tag2Value",
+    },
+    "timestamp": 123.123123,
+  },
+  "measurementName2 ",
+]
+`;

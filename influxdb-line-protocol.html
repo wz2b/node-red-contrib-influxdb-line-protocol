@@ -1,0 +1,64 @@
+<script type="text/javascript">
+    RED.nodes.registerType('influxdb-line-protocol',{
+        category: 'function',
+        color: '#a6bbcf',
+        defaults: {
+            name: {value:""},
+            addTimestamp: {value: false}
+        },
+        inputs: 1,
+        outputs: 1,
+        // icon: "file.png",
+        label: function() {
+            return this.name || "influxdb-line-protocol";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="influxdb-line-protocol">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+    <div class="form-row">
+        <input type="checkbox" id="node-input-addTimestamp" />
+        <label for="node-input-addTimestamp">Add timestamp if missing</label>
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="influxdb-line-protocol">
+    <p>Takes the message's payload and formats or parses InfluxDB Line Protocol
+    from/to JSON.</p> 
+
+<h2>Example</h2>
+
+    <pre><code>// Input
+measurementName,tag1=tagValue1,tag2=tagValue2 field1=42,field2=1337,field3="foobar" 1546300800000000000
+
+// Output
+{
+  "measurement": "measurementName",
+  "tags": {
+    "tag1": "tagValue1",
+    "tag2": "tagValue2",
+  },
+  "fields": {
+    "field1": 42,
+    "field2": 1337,
+    "field3": "foobar",
+  },
+  "timestamp": 1546300800000
+}</code></pre>
+    
+    <h2>Notes</h2>
+
+    <p>This node also operates on arrays, it formats or parses each item in the
+    array independently. This may lead to mixed parsing and formatting in the
+    same operation.</p>
+
+    <p>Notice that the timestamp in JSON will be milliseconds since epoch, and
+    compatible with the JavaScript <code>Date</code>, and in InfluxDB notation
+    will be nanoseconds, as specified by the InfluxDB Line Protocol.</p>
+</script>
+
