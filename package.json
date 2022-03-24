@@ -1,21 +1,40 @@
 {
-  "name": "node-red-contrib-influxdb-line-protocol",
-  "version": "0.1.0",
+  "name": "@wz2b/node-red-influxdb-line-protocol",
+  "version": "0.2.0",
   "description": "Parses InfluxDB Line Protocol to JSON and vice versa.",
   "author": "opatut",
+  "keywords": [
+    "node-red",
+    "influxdb",
+    "line-protocol"
+  ],
+  "contributors": [
+    {
+      "name": "Christopher Piggott",
+      "email": "cpiggott@gmail.com",
+      "url": "https://github.com/wz2b"
+    }
+  ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wz2b/node-red-contrib-influxdb-line-protocol"
+  },
   "scripts": {
     "test": "jest"
   },
   "node-red": {
+    "version": ">=2.0.0",
     "nodes": {
       "influxdb-line-protocol": "influxdb-line-protocol.js"
     }
   },
-  "dependencies": {},
   "devDependencies": {
     "jest": "^24.0.0",
-    "node-red": "^0.19.5",
-    "node-red-node-test-helper": "^0.1.8"
+    "node-red": "^2.2.2",
+    "node-red-node-test-helper": "^0.2.7"
+  },
+  "dependencies": {
+    "node-red-contrib-influxdb-line-protocol": "file:"
   }
 }

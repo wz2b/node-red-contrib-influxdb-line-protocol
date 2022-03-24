@@ -1,24 +1,102 @@
 <script type="text/javascript">
-    RED.nodes.registerType('influxdb-line-protocol',{
-        category: 'function',
-        color: '#DEBD5C',
-        defaults: {
-            name: {value:""},
-            addTimestamp: {value: false}
-        },
-        inputs: 1,
-        outputs: 1,
-        icon: "influxdb.png",
-        paletteLabel: "InfluxDB / JSON",
-        inputLabels: "string or JSON",
-        outputLabels: ["string or JSON"],
-        label: function() {
-            return this.name || "influxdb-line-protocol";
-        }
-    });
+  RED.nodes.registerType('influxdb-line-protocol', {
+    category: 'function',
+    color: '#DEBD5C',
+    defaults: {
+      name: {value: ""},
+      addTimestamp: {value: false},
+      defaultTypeMapping: {value: "float", required: true},
+      typeMappings: {
+        value: [
+          /* The type mappings is an array of
+           *     { fieldName: "xyz", fieldType: "int" }
+           * where the field type is a string 'int' or 'float'.  Where present, these mappings will
+           * override the default behavior.
+           */
+        ]
+      }
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: "influxdb.png",
+    paletteLabel: "InfluxDB / JSON",
+    inputLabels: "string or JSON",
+    outputLabels: ["string or JSON"],
+    label: function () {
+      return this.name || "influxdb-line-protocol";
+    },
+    oneditprepare: function () {
+
+      $('#node-input-force-type-container')
+        .css('min-height', '150px')
+        .css('min-width', '450px')
+        .editableList({
+          removable: true,
+          sortable: true,
+          addItem: function (container, index, item) {
+            container.css({
+              overflow: 'hidden',
+              whiteSpace: 'nowrap'
+            });
+
+            let fragment = document.createDocumentFragment();
+            var row = $('<div/>', {style: "display:flex; align-items: baseline"}).appendTo(fragment);
+
+            var propertyName = $('<input/>', {class: "node-input-rule-property-name", type: "text"});
+            propertyName.appendTo(row);
+            propertyName.val(item.fieldName);
+
+            /*
+             * Add a type selection field
+             */
+
+            var typeSelect = $('<select/>', {
+              class: "node-input-rule-property-type",
+              style: "width:110px; margin-right:10px;"
+            }).appendTo(row);
+
+            typeSelect.append($("<option></option>").val("float").text("Float"));
+            typeSelect.append($("<option></option>").val("int").text("Integer"));
+
+            typeSelect.val(item.fieldType);
+
+            container[0].appendChild(fragment);
+          }
+        });
+
+      for (var i = 0; i < this.typeMappings.length; i++) {
+        var rule = this.typeMappings[i];
+        $("#node-input-force-type-container").editableList('addItem', rule);
+      }
+    },
+
+    oneditsave: function () {
+      var node = this;
+
+
+      // clear out the existing list
+      node.typeMappings = [];
+      var newMappings = $("#node-input-force-type-container").editableList('items');
+
+      newMappings.each(function (index) {
+        var mapping = $(this);
+        var fieldName = mapping.find(".node-input-rule-property-name").val();
+        var fieldType = mapping.find(".node-input-rule-property-type").val();
+        node.typeMappings.push({fieldName: fieldName, fieldType: fieldType});
+      });
+
+      console.log("Node Configuration", node);
+    }
+  });
 </script>
 
 <script type="text/x-red" data-template-name="influxdb-line-protocol">
+    <style>
+        ol#node-input-rule-container .red-ui-typedInput-container {
+            flex:1;
+        }
+    </style>
+
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
@@ -29,6 +107,28 @@
         <input type="checkbox" id="node-input-addTimestamp" style="display: inline-block; width: 15px; vertical-align: -2px;" />
         &nbsp;Add timestamp if missing
     </div>
+
+    <div class="form-row" style="margin-bottom:0;">
+        <label><i class="fa fa-list"></i> <span>Type Overrides</span></label>
+    </div>
+
+    <div class="form-row">
+      <label for="node-input-defaultTypeMapping"><i class="icon-tag"></i> Default Type</label>
+        <select type="text" id="node-input-defaultTypeMapping" style="width: 300px;">
+            <option value="float">Float</option>
+            <option value="int">Integer</option>
+        </select>
+    </div>
+
+    <div class="form-row node-input-force-type-container-row">
+        <ol id="node-input-force-type-container"></ol>
+    </div>
+
+
+
+
+
+
 </script>
 
 <script type="text/x-red" data-help-name="influxdb-line-protocol">
@@ -64,5 +164,10 @@ measurementName,tag1=tagValue1,tag2=tagValue2 field1=42,field2=1337,field3="foob
     <p>Notice that the timestamp in JSON will be milliseconds since epoch, and
     compatible with the JavaScript <code>Date</code>, and in InfluxDB notation
     will be nanoseconds, as specified by the InfluxDB Line Protocol.</p>
+
+
+
+
+
 </script>
 

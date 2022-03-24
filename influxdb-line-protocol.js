@@ -1,8 +1,25 @@
-function formatValue(v) {
+
+/*
+ * Take the input value and output it as a string.
+ * If the input value is numeric, look at the given numeric field type.
+ * If it is 'int' output it as a line protocol int (i.e. 1234i)
+ * Otherwise, output it as a float.
+ */
+function formatValue(v, numericType) {
   if (typeof v === 'number') {
-    if (Math.round(v) === v) {
+    if ( numericType== "int") {
+      intValue = Math.round(v);
       return `${v}i`
+    } else if(numericType == "float") {
+      return String(v)
     } else {
+      /*
+       * Don't know what this numeric format is - we shouldn't ever hit this condition.  Treat
+       * it as a float.  Note that reverting to the original node's behavior, where you test
+       * if (v == Math.round(v)) is not really an option - that test will always fail if you
+       * mean to write a float but that float happens to be a precise integer value.  This
+       * will prevent InfluxDB from inserting the entire row, so it's never really OK to do that.
+       */
       return String(v)
     }
   } else if (typeof v === 'boolean') {
@@ -39,10 +56,15 @@ function parseValue(value) {
   }
 }
 
-function joinObject(obj, withFormatting) {
+function joinObject(obj, withFormatting, config) {
   if (!obj) return ''
+
   return Object.keys(obj)
-    .map(key => `${key}=${withFormatting ? formatValue(obj[key]) : obj[key]}`)
+    .map(key => {
+      let override = config.typeMappings.find( (i) => i.fieldName == key);
+      let numType = override?.fieldType || config.defaultTypeMapping;
+      return `${key}=${withFormatting ? formatValue(obj[key], numType) : obj[key]}`
+    })
     .join(',')
 }
 
@@ -84,12 +106,12 @@ function format(pointJson, config) {
 
   var str = measurement
 
-  const tagsStr = joinObject(tags, false)
+  const tagsStr = joinObject(tags, false, config)
   if (tagsStr) {
     str += ',' + tagsStr
   }
 
-  str += ' ' + joinObject(fields, true)
+  str += ' ' + joinObject(fields, true, config)
 
   if (timestamp) {
     str += ' ' + formatDate(timestamp)
@@ -108,8 +130,10 @@ function transform(item, config) {
   if (item == null) {
     return item
   } else if (typeof item === 'string') {
+    /* converting an influx line protocol string into a JSON object */
     return parse(item, config)
   } else if (typeof item === 'object' && 'measurement' in item) {
+    /* converting an object into a string using influx line protocol */
     return format(item, config)
   } else {
     return item
@@ -126,14 +150,14 @@ function transformArray(itemOrArray, config) {
 
 module.exports = function(RED) {
   function InfluxdbLineProtocolNode(config) {
-    var node = this
+    var node = this;
     RED.nodes.createNode(node, config)
     node.on('input', function(msg) {
       try {
         msg.payload = transformArray(msg.payload, config)
         node.send(msg)
       } catch (err) {
-        node.error(err)
+        node.error(err);
       }
     })
   }
