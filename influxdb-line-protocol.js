@@ -62,7 +62,7 @@ function joinObject(obj, withFormatting, config) {
   return Object.keys(obj)
     .map(key => {
       let override = config.typeMappings.find( (i) => i.fieldName == key);
-      let numType = override?.fieldType || config.defaultTypeMapping;
+      let numType = override.fieldType || config.defaultTypeMapping;
       return `${key}=${withFormatting ? formatValue(obj[key], numType) : obj[key]}`
     })
     .join(',')
