@@ -42,7 +42,8 @@ function parseValue(value) {
   if (value == null) {
     return undefined
   } else if (INT_REGEX.test(value)) {
-    return parseInt(value.slice(0, -1))
+    return value
+    /*return parseInt(value.slice(0, -1))*/
   } else if (TRUE_REGEX.test(value)) {
     return true
   } else if (FALSE_REGEX.test(value)) {
