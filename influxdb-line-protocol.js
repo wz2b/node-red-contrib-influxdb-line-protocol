@@ -70,24 +70,28 @@ function joinObject(obj, withFormatting, config) {
 
 function parse(point, config) {
   const result = {}
+  /* split on whitespace character, but exclude escaped whitespaces */
+  const [tags_, fields_, timestamp] = point.split(/(?<!\\)\s/g)
+  /* split on comma character, but exclude escaped comma's */
+  const tags = (tags_ || '').split(/(?<!\\),/g)
+  const fields = (fields_ || '').split(/(?<!\\),/g)
 
-  const [tags_, fields_, timestamp] = point.split(' ')
-
-  const tags = (tags_ || '').split(',')
-  const fields = (fields_ || '').split(',')
 
   result.measurement = tags.shift()
 
   result.tags = tags.reduce((out, tag) => {
     if (!tag) return out
-    var [key, value] = tag.split('=')
-    out[key] = value
+    /* split on equal character, but exclude escaped equal characters*/ 
+    var [key, value] = tag.split(/(?<!\\)=/)
+    /*remove backslash  from escaped characters*/
+	  out[key] = value.replace(/\\/g,'')
     return out
   }, {})
 
   result.fields = fields.reduce((out, field) => {
     if (!field) return out
-    var [key, value] = field.split('=')
+    /* split on equal character, but exclude escaped equal characters*/ 
+	  var [key, value] = field.split(/(?<!\\)=/)
     out[key] = parseValue(value)
     return out
   }, {})
