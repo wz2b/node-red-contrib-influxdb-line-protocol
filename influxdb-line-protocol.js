@@ -70,8 +70,8 @@ function joinObject(obj, withFormatting, config) {
 
 function parse(point, config) {
   const result = {}
-
-  const [tags_, fields_, timestamp] = point.split(' ')
+  /* split on whitespace character except escaped whitespaces and whitespaces between double quotes */
+  const [tags_, fields_, timestamp] = point.split(/(?<!".*)(?<!\\)\s|(?<=".*")(?<!\\)\s/g)
 
   const tags = (tags_ || '').split(',')
   const fields = (fields_ || '').split(',')
